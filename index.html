@@ -74,6 +74,37 @@
             opacity: 1;
         }
     </style>
+    <script>
+        // Fitur Tanam Logo Interaktif (Dipindah ke head agar langsung bisa diakses saat error)
+        function handleLogoError(imgElement) {
+            imgElement.onerror = null; 
+            imgElement.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="%23fce7f3" stroke="%23ed1c24" stroke-width="2" stroke-dasharray="4"/><text x="50" y="47" font-family="sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="%23ed1c24">Klik</text><text x="50" y="62" font-family="sans-serif" font-size="10" text-anchor="middle" fill="%23ed1c24">Tanam Logo</text></svg>';
+            imgElement.style.cursor = 'pointer';
+            imgElement.title = "Klik untuk memasukkan gambar logo Anda";
+            imgElement.onclick = function(e) {
+                e.stopPropagation(); 
+                document.getElementById('logo-uploader').click();
+            };
+        }
+
+        function loadLocalLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Logo = e.target.result;
+                    const logos = document.querySelectorAll('.company-logo');
+                    logos.forEach(logo => {
+                        logo.src = base64Logo;
+                        logo.onclick = null; 
+                        logo.style.cursor = 'default';
+                        logo.title = "Logo PT KSA";
+                    });
+                };
+                reader.readAsDataURL(file); 
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
 
@@ -97,6 +128,11 @@
                     <a href="#" onclick="navigate('about')" class="nav-link text-gray-600 hover:text-brand-600 font-medium transition">Tentang Kami</a>
                     <a href="#" onclick="navigate('products')" class="nav-link text-gray-600 hover:text-brand-600 font-medium transition">Produk</a>
                     
+                    <!-- Tambahan Menu Admin -->
+                    <a href="#" onclick="navigate('admin')" class="nav-link text-red-600 hover:text-red-800 font-bold transition flex items-center">
+                        <i class="fa-solid fa-screwdriver-wrench mr-2"></i> Admin
+                    </a>
+
                     <button onclick="navigate('cart')" class="relative p-2 text-gray-600 hover:text-brand-600 transition">
                         <i class="fa-solid fa-shopping-cart text-xl"></i>
                         <span id="cart-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">0</span>
@@ -122,6 +158,7 @@
                 <a href="#" onclick="navigate('home')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-600 hover:bg-gray-50">Beranda</a>
                 <a href="#" onclick="navigate('about')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-600 hover:bg-gray-50">Tentang Kami</a>
                 <a href="#" onclick="navigate('products')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-600 hover:bg-gray-50">Produk</a>
+                <a href="#" onclick="navigate('admin')" class="block px-3 py-2 rounded-md text-base font-bold text-red-600 hover:text-red-800 hover:bg-red-50">Dashboard Admin</a>
             </div>
         </div>
     </nav>
@@ -254,6 +291,79 @@
             </div>
         </section>
 
+        <!-- DASHBOARD ADMIN -->
+        <section id="admin" class="page-section py-16 bg-gray-50 min-h-[80vh]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-10">
+                    <h2 class="text-3xl font-serif font-bold text-gray-800 mb-2"><i class="fa-solid fa-screwdriver-wrench text-red-600 mr-3"></i>Dashboard Admin</h2>
+                    <p class="text-gray-600">Kelola katalog mesin dan peralatan Anda di sini.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Form Tambah Produk -->
+                    <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Tambah Produk Baru</h3>
+                        <form id="add-product-form" onsubmit="handleNewProductSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Mesin</label>
+                                <input type="text" id="admin-name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-500 focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp)</label>
+                                <input type="number" id="admin-price" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-500 focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                                <select id="admin-category" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-500 focus:border-brand-500">
+                                    <option value="Mesin Pertanian">Mesin Pertanian</option>
+                                    <option value="Mesin Industri">Mesin Industri</option>
+                                    <option value="Industri Umum">Industri Umum</option>
+                                    <option value="Suku Cadang">Suku Cadang</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Gambar</label>
+                                <div class="flex items-center space-x-4">
+                                    <div class="h-16 w-16 bg-gray-100 rounded-lg border border-dashed border-gray-400 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                        <img id="admin-image-preview" src="" class="w-full h-full object-cover hidden">
+                                        <i id="admin-image-icon" class="fa-solid fa-image text-gray-400"></i>
+                                    </div>
+                                    <input type="file" id="admin-image" accept="image/*" onchange="handleProductImageUpload(event)" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Produk</label>
+                                <textarea id="admin-desc" required rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-500 focus:border-brand-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition mt-4">
+                                Simpan Produk
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Daftar Produk -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Daftar Produk Saat Ini</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left text-gray-500">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-3">Produk</th>
+                                        <th scope="col" class="px-4 py-3">Kategori</th>
+                                        <th scope="col" class="px-4 py-3">Harga</th>
+                                        <th scope="col" class="px-4 py-3 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-product-list">
+                                    <!-- List dirender oleh JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- Footer -->
@@ -318,83 +428,128 @@
     </div>
 
     <!-- SCRIPT LOGIKA APLIKASI -->
-    <script>
-        // Fitur Tanam Logo Interaktif (Mengatasi kendala Preview)
-        function handleLogoError(imgElement) {
-            imgElement.onerror = null; // Mencegah loop
-            // Ganti gambar dengan desain tombol SVG
-            imgElement.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="%23fce7f3" stroke="%23ed1c24" stroke-width="2" stroke-dasharray="4"/><text x="50" y="47" font-family="sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="%23ed1c24">Klik</text><text x="50" y="62" font-family="sans-serif" font-size="10" text-anchor="middle" fill="%23ed1c24">Tanam Logo</text></svg>';
-            imgElement.style.cursor = 'pointer';
-            imgElement.title = "Klik untuk memasukkan gambar logo Anda";
-            
-            // Saat diklik, buka dialog pemilihan file
-            imgElement.onclick = function(e) {
-                e.stopPropagation(); 
-                document.getElementById('logo-uploader').click();
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Konfigurasi Firebase dari Environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+        let db;
+
+        if (firebaseConfigStr) {
+            const firebaseConfig = JSON.parse(firebaseConfigStr);
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            db = getFirestore(app);
+
+            // Inisialisasi Auth
+            const initAuth = async () => {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Gagal masuk:", error);
+                }
             };
+            initAuth();
+
+            // Dengarkan Status Auth
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    listenToProducts();
+                }
+            });
+        } else {
+            console.warn("Sistem berjalan secara offline karena config database tidak ditemukan.");
         }
 
-        // Membaca file gambar dan mengubahnya ke Base64 (Data URI)
-        function loadLocalLogo(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64Logo = e.target.result;
-                    // Terapkan logo ke semua elemen yang memiliki class 'company-logo'
-                    const logos = document.querySelectorAll('.company-logo');
-                    logos.forEach(logo => {
-                        logo.src = base64Logo;
-                        logo.onclick = null; // Matikan fungsi klik
-                        logo.style.cursor = 'default';
-                        logo.title = "Logo PT KSA";
-                    });
-                };
-                reader.readAsDataURL(file); // Ini akan mengekstrak Base64 secara real-time
-            }
-        }
+        // Ekspor fungsi ke global (window) agar bisa dipanggil dari HTML tag
+        window.navigate = navigate;
+        window.addToCart = addToCart;
+        window.changeQty = changeQty;
+        window.removeItem = removeItem;
+        window.processCheckout = processCheckout;
+        window.closeModal = closeModal;
+        window.handleProductImageUpload = handleProductImageUpload;
+        window.handleNewProductSubmit = handleNewProductSubmit;
+        window.deleteAdminProduct = deleteAdminProduct;
 
-        // Data Produk
-        const products = [
-            { id: 1, name: "Traktor Tangan Serbaguna", price: 25500000, category: "Mesin Pertanian", image: "https://images.unsplash.com/photo-1592982537447-6f29e1eb1c47?auto=format&fit=crop&w=500&q=80", desc: "Traktor tangan bertenaga diesel yang tangguh untuk membajak sawah dan kebun dengan efisien." },
-            { id: 2, name: "Mesin Penggiling Padi", price: 15000000, category: "Mesin Pertanian", image: "https://images.unsplash.com/photo-1587525492100-34df7c4df782?auto=format&fit=crop&w=500&q=80", desc: "Mesin penggiling padi otomatis dengan hasil beras putih bersih dan tingkat kerusakan gabah yang sangat rendah." },
-            { id: 3, name: "Pompa Air Irigasi Diesel", price: 6500000, category: "Mesin Pertanian", image: "https://images.unsplash.com/photo-1544391695-15103a830b80?auto=format&fit=crop&w=500&q=80", desc: "Pompa air dengan debit besar yang dikhususkan untuk kebutuhan irigasi lahan pertanian dan perkebunan." },
-            { id: 4, name: "Mesin Pengemas Otomatis", price: 45000000, category: "Mesin Industri", image: "https://images.unsplash.com/photo-1581091226033-bf5c4eaf85af?auto=format&fit=crop&w=500&q=80", desc: "Mesin packaging jenis continuous band sealer untuk mempercepat dan merapikan proses pengemasan produk pabrik." },
-            { id: 5, name: "Kompresor Udara 10 HP", price: 12500000, category: "Mesin Industri", image: "https://images.unsplash.com/photo-1504307651254-35680f356f58?auto=format&fit=crop&w=500&q=80", desc: "Kompresor angin industri dengan tekanan stabil dan bertenaga besar, cocok untuk bengkel manufaktur dan pabrikasi." },
-            { id: 6, name: "Genset Diesel 50 KVA", price: 85000000, category: "Industri Umum", image: "https://images.unsplash.com/photo-1530533718754-0010bd7183e9?auto=format&fit=crop&w=500&q=80", desc: "Generator set tipe silent bertenaga tinggi untuk mem-backup kebutuhan listrik bengkel atau industri skala menengah." }
+        // Data Awal Jika Database Kosong
+        const defaultProducts = [
+            { name: "Traktor Tangan Serbaguna", price: 25500000, category: "Mesin Pertanian", image: "https://images.unsplash.com/photo-1592982537447-6f29e1eb1c47?auto=format&fit=crop&w=500&q=80", desc: "Traktor tangan bertenaga diesel yang tangguh untuk membajak sawah dan kebun dengan efisien." },
+            { name: "Mesin Penggiling Padi", price: 15000000, category: "Mesin Pertanian", image: "https://images.unsplash.com/photo-1587525492100-34df7c4df782?auto=format&fit=crop&w=500&q=80", desc: "Mesin penggiling padi otomatis dengan hasil beras putih bersih dan tingkat kerusakan gabah yang sangat rendah." },
+            { name: "Pompa Air Irigasi Diesel", price: 6500000, category: "Mesin Pertanian", image: "https://images.unsplash.com/photo-1544391695-15103a830b80?auto=format&fit=crop&w=500&q=80", desc: "Pompa air dengan debit besar yang dikhususkan untuk kebutuhan irigasi lahan pertanian dan perkebunan." },
+            { name: "Mesin Pengemas Otomatis", price: 45000000, category: "Mesin Industri", image: "https://images.unsplash.com/photo-1581091226033-bf5c4eaf85af?auto=format&fit=crop&w=500&q=80", desc: "Mesin packaging jenis continuous band sealer untuk mempercepat dan merapikan proses pengemasan produk pabrik." },
+            { name: "Kompresor Udara 10 HP", price: 12500000, category: "Mesin Industri", image: "https://images.unsplash.com/photo-1504307651254-35680f356f58?auto=format&fit=crop&w=500&q=80", desc: "Kompresor angin industri dengan tekanan stabil dan bertenaga besar, cocok untuk bengkel manufaktur dan pabrikasi." },
+            { name: "Genset Diesel 50 KVA", price: 85000000, category: "Industri Umum", image: "https://images.unsplash.com/photo-1530533718754-0010bd7183e9?auto=format&fit=crop&w=500&q=80", desc: "Generator set tipe silent bertenaga tinggi untuk mem-backup kebutuhan listrik bengkel atau industri skala menengah." }
         ];
 
-        // State Keranjang
+        let products = [];
         let cart = [];
+        let isSeeding = false;
+
+        // Mendengarkan perubahan data secara Realtime dari Database
+        function listenToProducts() {
+            if (!db) return;
+            const productsRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+            
+            onSnapshot(productsRef, async (snapshot) => {
+                if (snapshot.empty && !isSeeding) {
+                    // Isi database pertama kali jika masih kosong
+                    isSeeding = true;
+                    for (const prod of defaultProducts) {
+                        await addDoc(productsRef, { ...prod, createdAt: Date.now() });
+                    }
+                    return;
+                }
+
+                products = [];
+                snapshot.forEach((doc) => {
+                    products.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Urutkan berdasarkan waktu ditambahkan (lokal sorting)
+                products.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+                // Update keranjang jika ada barang yang terhapus dari database
+                cart = cart.filter(c => products.some(p => p.id === c.id));
+                
+                renderProducts();
+                renderAdminProducts();
+                updateCartBadge();
+                renderCart();
+            }, (error) => {
+                console.error("Error database:", error);
+            });
+        }
 
         // Format Rupiah
         const formatRupiah = (number) => {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
         };
 
-        // Navigasi SPA
         function navigate(sectionId) {
-            // Sembunyikan semua section
-            document.querySelectorAll('.page-section').forEach(sec => {
-                sec.classList.remove('active');
-            });
-            // Tampilkan yang dipilih
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             window.scrollTo(0, 0);
-
-            // Jika masuk ke keranjang, render ulang
-            if(sectionId === 'cart') {
-                renderCart();
-            }
-
-            // Tutup mobile menu jika terbuka
+            if(sectionId === 'cart') renderCart();
+            if(sectionId === 'admin') renderAdminProducts();
             document.getElementById('mobile-menu').classList.add('hidden');
         }
 
-        // Render Produk ke Grid
         function renderProducts() {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
+            
+            if(products.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Memuat data / Belum ada produk...</div>';
+                return;
+            }
 
             products.forEach(product => {
                 const card = document.createElement('div');
@@ -410,7 +565,7 @@
                         <h3 class="text-xl font-bold text-gray-800 mb-2">${product.name}</h3>
                         <p class="text-brand-600 font-bold text-lg mb-3">${formatRupiah(product.price)}</p>
                         <p class="text-gray-500 text-sm mb-6 flex-grow line-clamp-2">${product.desc}</p>
-                        <button onclick="addToCart(${product.id})" class="w-full bg-white border-2 border-brand-500 text-brand-600 hover:bg-brand-500 hover:text-white py-2.5 rounded-lg font-semibold transition duration-300 flex items-center justify-center">
+                        <button onclick="addToCart('${product.id}')" class="w-full bg-white border-2 border-brand-500 text-brand-600 hover:bg-brand-500 hover:text-white py-2.5 rounded-lg font-semibold transition duration-300 flex items-center justify-center">
                             <i class="fa-solid fa-cart-plus mr-2"></i> Tambah ke Keranjang
                         </button>
                     </div>
@@ -419,12 +574,11 @@
             });
         }
 
-        // Tambah ke Keranjang
         function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
+            const product = products.find(p => String(p.id) === String(productId));
             if (!product) return;
 
-            const existingItem = cart.find(item => item.id === productId);
+            const existingItem = cart.find(item => String(item.id) === String(productId));
             if (existingItem) {
                 existingItem.qty += 1;
             } else {
@@ -435,14 +589,12 @@
             showToast(`${product.name} ditambahkan!`);
         }
 
-        // Update Badge Keranjang (Desktop & Mobile)
         function updateCartBadge() {
             const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
             document.getElementById('cart-badge').textContent = totalItems;
             document.getElementById('cart-badge-mobile').textContent = totalItems;
         }
 
-        // Render Keranjang Belanja
         function renderCart() {
             const container = document.getElementById('cart-container');
             const summary = document.getElementById('cart-summary');
@@ -462,7 +614,7 @@
             let cartHTML = '<div class="space-y-4">';
             let totalPrice = 0;
 
-            cart.forEach((item, index) => {
+            cart.forEach((item) => {
                 const itemTotal = item.price * item.qty;
                 totalPrice += itemTotal;
                 cartHTML += `
@@ -476,14 +628,14 @@
                         </div>
                         <div class="flex items-center justify-between w-full sm:w-auto gap-6">
                             <div class="flex items-center border rounded-lg bg-gray-50">
-                                <button onclick="changeQty(${item.id}, -1)" class="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded-l-lg">-</button>
+                                <button onclick="changeQty('${item.id}', -1)" class="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded-l-lg">-</button>
                                 <span class="px-4 font-semibold">${item.qty}</span>
-                                <button onclick="changeQty(${item.id}, 1)" class="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded-r-lg">+</button>
+                                <button onclick="changeQty('${item.id}', 1)" class="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded-r-lg">+</button>
                             </div>
                             <div class="font-bold text-gray-800 w-32 text-right">
                                 ${formatRupiah(itemTotal)}
                             </div>
-                            <button onclick="removeItem(${item.id})" class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition">
+                            <button onclick="removeItem('${item.id}')" class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -497,9 +649,8 @@
             document.getElementById('cart-total-price').textContent = formatRupiah(totalPrice);
         }
 
-        // Ubah Kuantitas
         function changeQty(productId, change) {
-            const item = cart.find(i => i.id === productId);
+            const item = cart.find(i => String(i.id) === String(productId));
             if (item) {
                 item.qty += change;
                 if (item.qty <= 0) {
@@ -511,18 +662,16 @@
             }
         }
 
-        // Hapus Item
         function removeItem(productId) {
-            cart = cart.filter(item => item.id !== productId);
+            cart = cart.filter(item => String(item.id) !== String(productId));
             renderCart();
             updateCartBadge();
             showToast("Item dihapus dari keranjang.");
         }
 
-        // Checkout Modal
         function processCheckout() {
             document.getElementById('checkout-modal').classList.remove('hidden');
-            cart = []; // Kosongkan keranjang
+            cart = []; 
             updateCartBadge();
             renderCart();
         }
@@ -532,7 +681,109 @@
             navigate('home');
         }
 
-        // Custom Toast Notification (Pengganti Alert)
+        // --- FITUR ADMIN --- //
+        let currentUploadedImageBase64 = "";
+
+        function handleProductImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUploadedImageBase64 = e.target.result;
+                    const preview = document.getElementById('admin-image-preview');
+                    const icon = document.getElementById('admin-image-icon');
+                    preview.src = currentUploadedImageBase64;
+                    preview.classList.remove('hidden');
+                    icon.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function handleNewProductSubmit(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('admin-name').value;
+            const price = parseInt(document.getElementById('admin-price').value);
+            const category = document.getElementById('admin-category').value;
+            const desc = document.getElementById('admin-desc').value;
+            
+            if (!currentUploadedImageBase64) {
+                showToast("Mohon upload gambar produk terlebih dahulu!");
+                return;
+            }
+
+            const newProduct = {
+                name: name,
+                price: price,
+                category: category,
+                image: currentUploadedImageBase64,
+                desc: desc,
+                createdAt: Date.now()
+            };
+
+            if (db) {
+                try {
+                    const productsRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+                    await addDoc(productsRef, newProduct);
+                    showToast("Produk berhasil disimpan ke Database!");
+                } catch(error) {
+                    console.error("Gagal simpan ke database:", error);
+                    showToast("Gagal menyimpan produk.");
+                }
+            }
+            
+            event.target.reset();
+            currentUploadedImageBase64 = "";
+            document.getElementById('admin-image-preview').classList.add('hidden');
+            document.getElementById('admin-image-icon').classList.remove('hidden');
+        }
+
+        function renderAdminProducts() {
+            const listBody = document.getElementById('admin-product-list');
+            listBody.innerHTML = '';
+
+            if(products.length === 0) {
+                listBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">Memuat data / Belum ada produk...</td></tr>`;
+                return;
+            }
+
+            products.forEach(product => {
+                const tr = document.createElement('tr');
+                tr.className = "bg-white border-b hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap flex items-center">
+                        <img src="${product.image}" class="w-10 h-10 rounded object-cover mr-3 border border-gray-200">
+                        ${product.name}
+                    </td>
+                    <td class="px-4 py-3">${product.category}</td>
+                    <td class="px-4 py-3">${formatRupiah(product.price)}</td>
+                    <td class="px-4 py-3 text-right">
+                        <button onclick="deleteAdminProduct('${product.id}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition">
+                            <i class="fa-solid fa-trash mr-1"></i> Hapus
+                        </button>
+                    </td>
+                `;
+                listBody.appendChild(tr);
+            });
+        }
+
+        async function deleteAdminProduct(productId) {
+            if(confirm("Apakah Anda yakin ingin menghapus produk ini dari database?")) {
+                if (db) {
+                    try {
+                        const productRef = doc(db, 'artifacts', appId, 'public', 'data', 'products', productId);
+                        await deleteDoc(productRef);
+                        showToast("Produk berhasil dihapus dari Database!");
+                    } catch(error) {
+                        console.error("Gagal hapus:", error);
+                        showToast("Gagal menghapus produk.");
+                    }
+                }
+            }
+        }
+        // --- END FITUR ADMIN --- //
+
         function showToast(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -541,30 +792,23 @@
             
             container.appendChild(toast);
             
-            // Animasi masuk
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 10);
-
-            // Hapus setelah 3 detik
+            setTimeout(() => toast.classList.add('show'), 10);
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => {
-                    toast.remove();
-                }, 300);
+                setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
 
-        // Inisialisasi
         document.addEventListener('DOMContentLoaded', () => {
-            renderProducts();
+            // Jika berjalan tanpa firebase, render awal tetap dijalankan
+            if(!db) {
+                products = [...defaultProducts]; // Mock data
+                renderProducts();
+            }
             
-            // Mobile Menu Toggle
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-menu');
-            btn.addEventListener('click', () => {
-                menu.classList.toggle('hidden');
-            });
+            btn.addEventListener('click', () => menu.classList.toggle('hidden'));
         });
 
     </script>
