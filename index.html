@@ -170,7 +170,7 @@
         <section id="home" class="page-section active">
             <div class="relative bg-brand-900 overflow-hidden">
                 <div class="absolute inset-0">
-                    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80" alt="Mesin Industri" class="w-full h-full object-cover opacity-30">
+                    <img id="hero-bg-img" src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80" alt="Mesin Industri" class="w-full h-full object-cover opacity-30 transition-all duration-700">
                 </div>
                 <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 flex flex-col items-center text-center">
                     <h1 class="text-4xl md:text-6xl font-serif font-bold text-white mb-6 leading-tight">
@@ -297,6 +297,26 @@
                 <div class="mb-10">
                     <h2 class="text-3xl font-serif font-bold text-gray-800 mb-2"><i class="fa-solid fa-screwdriver-wrench text-red-600 mr-3"></i>Dashboard Admin</h2>
                     <p class="text-gray-600">Kelola katalog mesin dan peralatan Anda di sini.</p>
+                </div>
+
+                <!-- Pengaturan Tampilan -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3"><i class="fa-solid fa-desktop text-brand-600 mr-2"></i>Pengaturan Tampilan Beranda</h3>
+                    <form id="settings-form" onsubmit="handleBgSubmit(event)" class="flex flex-col md:flex-row gap-6 items-end">
+                        <div class="w-full md:w-auto flex-grow">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ubah Foto Background (Halaman Depan)</label>
+                            <div class="flex items-center space-x-4">
+                                <div class="h-20 w-32 bg-gray-100 rounded-lg border border-dashed border-gray-400 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                    <img id="admin-bg-preview" src="" class="w-full h-full object-cover hidden">
+                                    <i id="admin-bg-icon" class="fa-solid fa-image text-gray-400"></i>
+                                </div>
+                                <input type="file" accept="image/*" onchange="handleBgImageUpload(event)" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full md:w-auto bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-lg transition shadow-md">
+                            Simpan Background
+                        </button>
+                    </form>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -430,43 +450,44 @@
     <!-- SCRIPT LOGIKA APLIKASI -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Konfigurasi Firebase dari Environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+        // Konfigurasi Firebase PT Kalimaya Surya Alam (KSA)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCh_wy9P3BHrgc3VkN-YKkLLjhSHw5LwdY",
+            authDomain: "ksa-pertanian.firebaseapp.com",
+            projectId: "ksa-pertanian",
+            storageBucket: "ksa-pertanian.firebasestorage.app",
+            messagingSenderId: "429518744969",
+            appId: "1:429518744969:web:0beaf1bce674dc8a41c558",
+            measurementId: "G-5RE09M7P1X"
+        };
+
         let db;
 
-        if (firebaseConfigStr) {
-            const firebaseConfig = JSON.parse(firebaseConfigStr);
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            db = getFirestore(app);
+        // Inisialisasi Firebase KSA
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        db = getFirestore(app);
 
-            // Inisialisasi Auth
-            const initAuth = async () => {
-                try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                } catch (error) {
-                    console.error("Gagal masuk:", error);
-                }
-            };
-            initAuth();
+        // Inisialisasi Auth Anonim untuk akses database
+        const initAuth = async () => {
+            try {
+                await signInAnonymously(auth);
+            } catch (error) {
+                console.error("Gagal masuk Firebase Auth:", error);
+            }
+        };
+        initAuth();
 
-            // Dengarkan Status Auth
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    listenToProducts();
-                }
-            });
-        } else {
-            console.warn("Sistem berjalan secara offline karena config database tidak ditemukan.");
-        }
+        // Dengarkan Status Auth
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                listenToProducts();
+                listenToSettings();
+            }
+        });
 
         // Ekspor fungsi ke global (window) agar bisa dipanggil dari HTML tag
         window.navigate = navigate;
@@ -478,6 +499,8 @@
         window.handleProductImageUpload = handleProductImageUpload;
         window.handleNewProductSubmit = handleNewProductSubmit;
         window.deleteAdminProduct = deleteAdminProduct;
+        window.handleBgImageUpload = handleBgImageUpload;
+        window.handleBgSubmit = handleBgSubmit;
 
         // Data Awal Jika Database Kosong
         const defaultProducts = [
@@ -496,7 +519,7 @@
         // Mendengarkan perubahan data secara Realtime dari Database
         function listenToProducts() {
             if (!db) return;
-            const productsRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+            const productsRef = collection(db, 'products');
             
             onSnapshot(productsRef, async (snapshot) => {
                 if (snapshot.empty && !isSeeding) {
@@ -525,6 +548,23 @@
                 renderCart();
             }, (error) => {
                 console.error("Error database:", error);
+            });
+        }
+
+        // Mendengarkan perubahan pengaturan web (Background)
+        function listenToSettings() {
+            if (!db) return;
+            const settingsRef = doc(db, 'settings', 'homepage');
+            onSnapshot(settingsRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.heroBackground) {
+                        const bgImg = document.getElementById('hero-bg-img');
+                        if (bgImg) bgImg.src = data.heroBackground;
+                    }
+                }
+            }, (error) => {
+                console.error("Error mengambil pengaturan:", error);
             });
         }
 
@@ -724,7 +764,7 @@
 
             if (db) {
                 try {
-                    const productsRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+                    const productsRef = collection(db, 'products');
                     await addDoc(productsRef, newProduct);
                     showToast("Produk berhasil disimpan ke Database!");
                 } catch(error) {
@@ -772,7 +812,7 @@
             if(confirm("Apakah Anda yakin ingin menghapus produk ini dari database?")) {
                 if (db) {
                     try {
-                        const productRef = doc(db, 'artifacts', appId, 'public', 'data', 'products', productId);
+                        const productRef = doc(db, 'products', productId);
                         await deleteDoc(productRef);
                         showToast("Produk berhasil dihapus dari Database!");
                     } catch(error) {
@@ -782,7 +822,50 @@
                 }
             }
         }
-        // --- END FITUR ADMIN --- //
+        
+        // --- FITUR UPLOAD BACKGROUND HERO --- //
+        let currentUploadedBgBase64 = "";
+
+        function handleBgImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUploadedBgBase64 = e.target.result;
+                    const preview = document.getElementById('admin-bg-preview');
+                    const icon = document.getElementById('admin-bg-icon');
+                    preview.src = currentUploadedBgBase64;
+                    preview.classList.remove('hidden');
+                    icon.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function handleBgSubmit(event) {
+            event.preventDefault();
+            if (!currentUploadedBgBase64) {
+                showToast("Silakan pilih gambar background terlebih dahulu!");
+                return;
+            }
+
+            if (db) {
+                try {
+                    const settingsRef = doc(db, 'settings', 'homepage');
+                    await setDoc(settingsRef, { heroBackground: currentUploadedBgBase64 }, { merge: true });
+                    showToast("Background Beranda berhasil diperbarui!");
+                } catch(error) {
+                    console.error("Gagal menyimpan background:", error);
+                    showToast("Gagal menyimpan background.");
+                }
+            } else {
+                // Mode offline
+                const bgImg = document.getElementById('hero-bg-img');
+                if (bgImg) bgImg.src = currentUploadedBgBase64;
+                showToast("Background diperbarui (Mode Sementara)");
+            }
+        }
+        // --- END FITUR UPLOAD BACKGROUND HERO --- //
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
