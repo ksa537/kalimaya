@@ -230,7 +230,8 @@
                 
                 <div class="flex flex-col md:flex-row items-center gap-12">
                     <div class="md:w-1/2">
-                        <img src="https://images.unsplash.com/photo-1618090584126-129cd1f3f4c2?auto=format&fit=crop&w=800&q=80" alt="Fasilitas Mesin" class="rounded-2xl shadow-xl w-full h-auto">
+                        <!-- Menambahkan ID about-img agar bisa diubah via JS -->
+                        <img id="about-img" src="https://images.unsplash.com/photo-1618090584126-129cd1f3f4c2?auto=format&fit=crop&w=800&q=80" alt="Fasilitas Mesin" class="rounded-2xl shadow-xl w-full h-auto transition-all duration-500">
                     </div>
                     <div class="md:w-1/2 space-y-6">
                         <h3 class="text-2xl font-bold text-gray-800">PT Kalimaya Surya Alam</h3>
@@ -301,10 +302,12 @@
 
                 <!-- Pengaturan Tampilan -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
-                    <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3"><i class="fa-solid fa-desktop text-brand-600 mr-2"></i>Pengaturan Tampilan Beranda</h3>
-                    <form id="settings-form" onsubmit="handleBgSubmit(event)" class="flex flex-col md:flex-row gap-6 items-end">
-                        <div class="w-full md:w-auto flex-grow">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Ubah Foto Background (Halaman Depan)</label>
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3"><i class="fa-solid fa-desktop text-brand-600 mr-2"></i>Pengaturan Tampilan Halaman</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Form Background Beranda -->
+                        <form id="settings-form" onsubmit="handleBgSubmit(event)" class="flex flex-col gap-4">
+                            <label class="block text-sm font-medium text-gray-700">Ubah Foto Background (Beranda)</label>
                             <div class="flex items-center space-x-4">
                                 <div class="h-20 w-32 bg-gray-100 rounded-lg border border-dashed border-gray-400 overflow-hidden flex-shrink-0 flex items-center justify-center">
                                     <img id="admin-bg-preview" src="" class="w-full h-full object-cover hidden">
@@ -312,17 +315,32 @@
                                 </div>
                                 <input type="file" accept="image/*" onchange="handleBgImageUpload(event)" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
                             </div>
-                        </div>
-                        <button type="submit" class="w-full md:w-auto bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-8 rounded-lg transition shadow-md">
-                            Simpan Background
-                        </button>
-                    </form>
+                            <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-lg transition shadow-md mt-auto">
+                                Simpan Background Beranda
+                            </button>
+                        </form>
+
+                        <!-- Form Foto Tentang Kami -->
+                        <form id="about-settings-form" onsubmit="handleAboutSubmit(event)" class="flex flex-col gap-4">
+                            <label class="block text-sm font-medium text-gray-700">Ubah Foto "Tentang Kami"</label>
+                            <div class="flex items-center space-x-4">
+                                <div class="h-20 w-32 bg-gray-100 rounded-lg border border-dashed border-gray-400 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                    <img id="admin-about-preview" src="" class="w-full h-full object-cover hidden">
+                                    <i id="admin-about-icon" class="fa-solid fa-image text-gray-400"></i>
+                                </div>
+                                <input type="file" accept="image/*" onchange="handleAboutImageUpload(event)" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                            </div>
+                            <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-lg transition shadow-md mt-auto">
+                                Simpan Foto Tentang Kami
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Form Tambah Produk -->
                     <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                        <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Tambah Produk Baru</h3>
+                        <h3 id="admin-form-title" class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Tambah Produk Baru</h3>
                         <form id="add-product-form" onsubmit="handleNewProductSubmit(event)" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Mesin</label>
@@ -355,9 +373,14 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Produk</label>
                                 <textarea id="admin-desc" required rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-500 focus:border-brand-500"></textarea>
                             </div>
-                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition mt-4">
-                                Simpan Produk
-                            </button>
+                            <div class="flex space-x-2 mt-4">
+                                <button type="submit" id="admin-submit-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition">
+                                    Simpan Produk
+                                </button>
+                                <button type="button" id="admin-cancel-btn" onclick="cancelEdit()" class="hidden bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition">
+                                    Batal
+                                </button>
+                            </div>
                         </form>
                     </div>
 
@@ -451,7 +474,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Konfigurasi Firebase PT Kalimaya Surya Alam (KSA)
         const firebaseConfig = {
@@ -499,8 +522,12 @@
         window.handleProductImageUpload = handleProductImageUpload;
         window.handleNewProductSubmit = handleNewProductSubmit;
         window.deleteAdminProduct = deleteAdminProduct;
+        window.editAdminProduct = editAdminProduct;
+        window.cancelEdit = cancelEdit;
         window.handleBgImageUpload = handleBgImageUpload;
         window.handleBgSubmit = handleBgSubmit;
+        window.handleAboutImageUpload = handleAboutImageUpload;
+        window.handleAboutSubmit = handleAboutSubmit;
 
         // Data Awal Jika Database Kosong
         const defaultProducts = [
@@ -551,7 +578,7 @@
             });
         }
 
-        // Mendengarkan perubahan pengaturan web (Background)
+        // Mendengarkan perubahan pengaturan web (Background & Tentang Kami)
         function listenToSettings() {
             if (!db) return;
             const settingsRef = doc(db, 'settings', 'homepage');
@@ -561,6 +588,10 @@
                     if (data.heroBackground) {
                         const bgImg = document.getElementById('hero-bg-img');
                         if (bgImg) bgImg.src = data.heroBackground;
+                    }
+                    if (data.aboutImage) {
+                        const aboutImg = document.getElementById('about-img');
+                        if (aboutImg) aboutImg.src = data.aboutImage;
                     }
                 }
             }, (error) => {
@@ -721,22 +752,50 @@
             navigate('home');
         }
 
+        // Fungsi Kompresi Gambar agar tidak melebihi batas 1MB Firestore
+        function compressImage(file, maxWidth, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // Kompresi JPEG 70%
+                    callback(dataUrl);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
         // --- FITUR ADMIN --- //
         let currentUploadedImageBase64 = "";
+        let editingProductId = null;
 
         function handleProductImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentUploadedImageBase64 = e.target.result;
+                // Kompres gambar dengan lebar maksimal 800px untuk produk
+                compressImage(file, 800, function(compressedBase64) {
+                    currentUploadedImageBase64 = compressedBase64;
                     const preview = document.getElementById('admin-image-preview');
                     const icon = document.getElementById('admin-image-icon');
                     preview.src = currentUploadedImageBase64;
                     preview.classList.remove('hidden');
                     icon.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
+                });
             }
         }
 
@@ -753,30 +812,82 @@
                 return;
             }
 
-            const newProduct = {
+            const productData = {
                 name: name,
                 price: price,
                 category: category,
                 image: currentUploadedImageBase64,
-                desc: desc,
-                createdAt: Date.now()
+                desc: desc
             };
 
             if (db) {
                 try {
-                    const productsRef = collection(db, 'products');
-                    await addDoc(productsRef, newProduct);
-                    showToast("Produk berhasil disimpan ke Database!");
+                    if (editingProductId) {
+                        // Mode Edit
+                        const productRef = doc(db, 'products', editingProductId);
+                        await updateDoc(productRef, productData);
+                        showToast("Produk berhasil diperbarui!");
+                    } else {
+                        // Mode Tambah
+                        productData.createdAt = Date.now();
+                        const productsRef = collection(db, 'products');
+                        await addDoc(productsRef, productData);
+                        showToast("Produk berhasil disimpan ke Database!");
+                    }
                 } catch(error) {
                     console.error("Gagal simpan ke database:", error);
                     showToast("Gagal menyimpan produk.");
                 }
             }
             
-            event.target.reset();
+            cancelEdit(); // Reset form dan kembalikan ke mode tambah
+        }
+
+        function editAdminProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            editingProductId = productId;
+            
+            // Isi form dengan data produk
+            document.getElementById('admin-name').value = product.name;
+            document.getElementById('admin-price').value = product.price;
+            document.getElementById('admin-category').value = product.category;
+            document.getElementById('admin-desc').value = product.desc;
+            
+            // Tampilkan gambar
+            currentUploadedImageBase64 = product.image;
+            const preview = document.getElementById('admin-image-preview');
+            const icon = document.getElementById('admin-image-icon');
+            preview.src = currentUploadedImageBase64;
+            preview.classList.remove('hidden');
+            icon.classList.add('hidden');
+
+            // Ubah UI Form menjadi Mode Edit
+            document.getElementById('admin-form-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-blue-600 mr-2"></i>Edit Produk`;
+            document.getElementById('admin-submit-btn').textContent = "Perbarui Produk";
+            document.getElementById('admin-submit-btn').classList.replace('bg-red-600', 'bg-blue-600');
+            document.getElementById('admin-submit-btn').classList.replace('hover:bg-red-700', 'hover:bg-blue-700');
+            document.getElementById('admin-cancel-btn').classList.remove('hidden');
+            
+            // Scroll otomatis ke bagian formulir
+            document.getElementById('admin-form-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function cancelEdit() {
+            editingProductId = null;
+            document.getElementById('add-product-form').reset();
+            
             currentUploadedImageBase64 = "";
             document.getElementById('admin-image-preview').classList.add('hidden');
             document.getElementById('admin-image-icon').classList.remove('hidden');
+
+            // Kembalikan UI Form menjadi Mode Tambah
+            document.getElementById('admin-form-title').textContent = "Tambah Produk Baru";
+            document.getElementById('admin-submit-btn').textContent = "Simpan Produk";
+            document.getElementById('admin-submit-btn').classList.replace('bg-blue-600', 'bg-red-600');
+            document.getElementById('admin-submit-btn').classList.replace('hover:bg-blue-700', 'hover:bg-red-700');
+            document.getElementById('admin-cancel-btn').classList.add('hidden');
         }
 
         function renderAdminProducts() {
@@ -798,9 +909,12 @@
                     </td>
                     <td class="px-4 py-3">${product.category}</td>
                     <td class="px-4 py-3">${formatRupiah(product.price)}</td>
-                    <td class="px-4 py-3 text-right">
-                        <button onclick="deleteAdminProduct('${product.id}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition">
-                            <i class="fa-solid fa-trash mr-1"></i> Hapus
+                    <td class="px-4 py-3 text-right whitespace-nowrap">
+                        <button onclick="editAdminProduct('${product.id}')" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition mr-1" title="Edit Produk">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <button onclick="deleteAdminProduct('${product.id}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition" title="Hapus Produk">
+                            <i class="fa-solid fa-trash"></i>
                         </button>
                     </td>
                 `;
@@ -829,16 +943,15 @@
         function handleBgImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentUploadedBgBase64 = e.target.result;
+                // Kompres gambar dengan lebar maksimal 1920px untuk background
+                compressImage(file, 1920, function(compressedBase64) {
+                    currentUploadedBgBase64 = compressedBase64;
                     const preview = document.getElementById('admin-bg-preview');
                     const icon = document.getElementById('admin-bg-icon');
                     preview.src = currentUploadedBgBase64;
                     preview.classList.remove('hidden');
                     icon.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
+                });
             }
         }
 
@@ -865,7 +978,49 @@
                 showToast("Background diperbarui (Mode Sementara)");
             }
         }
-        // --- END FITUR UPLOAD BACKGROUND HERO --- //
+        
+        // --- FITUR UPLOAD FOTO TENTANG KAMI --- //
+        let currentUploadedAboutBase64 = "";
+
+        function handleAboutImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Kompres gambar dengan lebar maksimal 800px
+                compressImage(file, 800, function(compressedBase64) {
+                    currentUploadedAboutBase64 = compressedBase64;
+                    const preview = document.getElementById('admin-about-preview');
+                    const icon = document.getElementById('admin-about-icon');
+                    preview.src = currentUploadedAboutBase64;
+                    preview.classList.remove('hidden');
+                    icon.classList.add('hidden');
+                });
+            }
+        }
+
+        async function handleAboutSubmit(event) {
+            event.preventDefault();
+            if (!currentUploadedAboutBase64) {
+                showToast("Silakan pilih foto Tentang Kami terlebih dahulu!");
+                return;
+            }
+
+            if (db) {
+                try {
+                    const settingsRef = doc(db, 'settings', 'homepage');
+                    // Menggunakan merge: true agar tidak menimpa pengaturan background yang sudah ada
+                    await setDoc(settingsRef, { aboutImage: currentUploadedAboutBase64 }, { merge: true });
+                    showToast("Foto Tentang Kami berhasil diperbarui!");
+                } catch(error) {
+                    console.error("Gagal menyimpan foto:", error);
+                    showToast("Gagal menyimpan foto.");
+                }
+            } else {
+                const aboutImg = document.getElementById('about-img');
+                if (aboutImg) aboutImg.src = currentUploadedAboutBase64;
+                showToast("Foto Tentang Kami diperbarui (Mode Sementara)");
+            }
+        }
+        // --- END FITUR UPLOAD FOTO TENTANG KAMI --- //
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
