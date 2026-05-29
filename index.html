@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PT KALIMAYA SURYA ALAM - Compro & Store</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        gold: '#d4af37'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Transisi halus antar halaman */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Toast Notification */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background-color: #166534;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease-out;
+        }
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center cursor-pointer" onclick="navigate('home')">
+                    <i class="fa-solid fa-leaf text-brand-600 text-3xl mr-3"></i>
+                    <span class="font-serif font-bold text-xl md:text-2xl text-brand-900 tracking-tight">KALIMAYA <span class="text-gold">SURYA ALAM</span></span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" onclick="navigate('home')" class="nav-link text-gray-600 hover:text-brand-600 font-medium transition">Beranda</a>
+                    <a href="#" onclick="navigate('about')" class="nav-link text-gray-600 hover:text-brand-600 font-medium transition">Tentang Kami</a>
+                    <a href="#" onclick="navigate('products')" class="nav-link text-gray-600 hover:text-brand-600 font-medium transition">Produk</a>
+                    
+                    <button onclick="navigate('cart')" class="relative p-2 text-gray-600 hover:text-brand-600 transition">
+                        <i class="fa-solid fa-shopping-cart text-xl"></i>
+                        <span id="cart-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">0</span>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center md:hidden space-x-4">
+                    <button onclick="navigate('cart')" class="relative p-2 text-gray-600">
+                        <i class="fa-solid fa-shopping-cart text-xl"></i>
+                        <span id="cart-badge-mobile" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">0</span>
+                    </button>
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-brand-600 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#" onclick="navigate('home')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-600 hover:bg-gray-50">Beranda</a>
+                <a href="#" onclick="navigate('about')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-600 hover:bg-gray-50">Tentang Kami</a>
+                <a href="#" onclick="navigate('products')" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-600 hover:bg-gray-50">Produk</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        
+        <!-- BERANDA -->
+        <section id="home" class="page-section active">
+            <div class="relative bg-brand-900 overflow-hidden">
+                <div class="absolute inset-0">
+                    <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=1920&q=80" alt="Alam" class="w-full h-full object-cover opacity-30">
+                </div>
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 flex flex-col items-center text-center">
+                    <h1 class="text-4xl md:text-6xl font-serif font-bold text-white mb-6 leading-tight">
+                        Harmoni Alam untuk <br> <span class="text-gold">Kesejahteraan Bersama</span>
+                    </h1>
+                    <p class="mt-4 text-xl text-gray-200 max-w-3xl mb-10 font-light">
+                        PT Kalimaya Surya Alam berdedikasi menghadirkan produk agrikultur dan sumber daya alam nusantara berkualitas tinggi dengan tetap menjaga kelestarian lingkungan.
+                    </p>
+                    <div class="flex space-x-4">
+                        <button onclick="navigate('products')" class="bg-brand-500 hover:bg-brand-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition transform hover:-translate-y-1">
+                            Lihat Produk
+                        </button>
+                        <button onclick="navigate('about')" class="bg-transparent border-2 border-white text-white hover:bg-white hover:text-brand-900 px-8 py-3 rounded-full font-semibold transition">
+                            Pelajari Lebih Lanjut
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="py-16 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                        <div class="p-6 rounded-2xl bg-brand-50 hover:shadow-md transition">
+                            <div class="w-16 h-16 mx-auto bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-2xl mb-4">
+                                <i class="fa-solid fa-leaf"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">100% Alami</h3>
+                            <p class="text-gray-600">Produk kami bersumber langsung dari alam tanpa bahan kimia berbahaya.</p>
+                        </div>
+                        <div class="p-6 rounded-2xl bg-brand-50 hover:shadow-md transition">
+                            <div class="w-16 h-16 mx-auto bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-2xl mb-4">
+                                <i class="fa-solid fa-handshake"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Pemberdayaan Lokal</h3>
+                            <p class="text-gray-600">Bekerja sama erat dengan petani lokal untuk meningkatkan kesejahteraan.</p>
+                        </div>
+                        <div class="p-6 rounded-2xl bg-brand-50 hover:shadow-md transition">
+                            <div class="w-16 h-16 mx-auto bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-2xl mb-4">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Berkelanjutan</h3>
+                            <p class="text-gray-600">Proses produksi yang mengutamakan kelestarian dan keseimbangan ekosistem.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TENTANG KAMI -->
+        <section id="about" class="page-section py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-brand-900 mb-4">Tentang Kami</h2>
+                    <div class="w-24 h-1 bg-gold mx-auto rounded"></div>
+                </div>
+                
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <div class="md:w-1/2">
+                        <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80" alt="Perkebunan" class="rounded-2xl shadow-xl w-full h-auto">
+                    </div>
+                    <div class="md:w-1/2 space-y-6">
+                        <h3 class="text-2xl font-bold text-gray-800">PT Kalimaya Surya Alam</h3>
+                        <p class="text-gray-600 leading-relaxed text-lg">
+                            Didirikan dengan kecintaan mendalam terhadap kekayaan bumi Indonesia, PT Kalimaya Surya Alam hadir sebagai jembatan antara potensi alam nusantara dan kebutuhan pasar global. Kami fokus pada sektor agribisnis dan pengelolaan hasil bumi yang mengutamakan kualitas, integritas, dan keberlanjutan.
+                        </p>
+                        <div class="bg-brand-50 p-6 rounded-xl border-l-4 border-brand-500">
+                            <h4 class="font-bold text-brand-900 text-lg mb-2"><i class="fa-solid fa-bullseye mr-2"></i> Visi</h4>
+                            <p class="text-gray-700">Menjadi perusahaan agro-industri terdepan di Indonesia yang menginspirasi dunia melalui produk alami berkualitas dan praktik bisnis berkelanjutan.</p>
+                        </div>
+                        <div class="bg-brand-50 p-6 rounded-xl border-l-4 border-gold">
+                            <h4 class="font-bold text-brand-900 text-lg mb-2"><i class="fa-solid fa-rocket mr-2"></i> Misi</h4>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>Menghasilkan produk berkualitas standar ekspor.</li>
+                                <li>Memberdayakan komunitas petani lokal Nusantara.</li>
+                                <li>Menjaga keseimbangan ekosistem dalam setiap proses produksi.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRODUK -->
+        <section id="products" class="page-section py-16 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-brand-900 mb-4">Katalog Produk Unggulan</h2>
+                    <div class="w-24 h-1 bg-brand-500 mx-auto rounded"></div>
+                    <p class="mt-4 text-gray-600 max-w-2xl mx-auto">Jelajahi produk-produk pilihan kami yang diproses dengan dedikasi untuk menjaga keaslian dan khasiat alaminya.</p>
+                </div>
+
+                <!-- Kontainer Grid Produk -->
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Produk akan dirender oleh JavaScript disini -->
+                </div>
+            </div>
+        </section>
+
+        <!-- KERANJANG BELANJA -->
+        <section id="cart" class="page-section py-16 bg-white min-h-[60vh]">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-serif font-bold text-brand-900 mb-8 border-b pb-4">Keranjang Belanja</h2>
+                
+                <div id="cart-container">
+                    <!-- Isi keranjang dirender JS -->
+                </div>
+
+                <div id="cart-summary" class="mt-8 bg-gray-50 p-6 rounded-xl border hidden">
+                    <div class="flex justify-between items-center mb-4 text-xl font-bold text-gray-800">
+                        <span>Total Keseluruhan:</span>
+                        <span id="cart-total-price">Rp 0</span>
+                    </div>
+                    <button onclick="processCheckout()" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-lg font-bold text-lg transition shadow-md">
+                        Proses Pembayaran <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-900 text-white pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-leaf text-gold text-2xl mr-3"></i>
+                        <span class="font-serif font-bold text-xl tracking-tight">KALIMAYA SURYA ALAM</span>
+                    </div>
+                    <p class="text-brand-100 text-sm leading-relaxed mb-4">
+                        Membawa kebaikan alam nusantara ke gaya hidup modern Anda. Berkomitmen pada kualitas dan kelestarian.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-brand-800 flex items-center justify-center hover:bg-brand-500 transition"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-brand-800 flex items-center justify-center hover:bg-brand-500 transition"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-brand-800 flex items-center justify-center hover:bg-brand-500 transition"><i class="fa-brands fa-facebook-f"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4 text-gold">Tautan Cepat</h4>
+                    <ul class="space-y-2 text-brand-100">
+                        <li><a href="#" onclick="navigate('home')" class="hover:text-white transition">Beranda</a></li>
+                        <li><a href="#" onclick="navigate('about')" class="hover:text-white transition">Tentang Kami</a></li>
+                        <li><a href="#" onclick="navigate('products')" class="hover:text-white transition">Produk Kami</a></li>
+                        <li><a href="#" onclick="navigate('cart')" class="hover:text-white transition">Keranjang Belanja</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4 text-gold">Hubungi Kami</h4>
+                    <ul class="space-y-3 text-brand-100 text-sm">
+                        <li class="flex items-start"><i class="fa-solid fa-map-marker-alt mt-1 mr-3 text-brand-500"></i> Gedung Agro Nusantara Lt. 4<br>Jl. Jenderal Sudirman No. 12<br>Jakarta Selatan, Indonesia</li>
+                        <li class="flex items-center"><i class="fa-solid fa-phone mr-3 text-brand-500"></i> +62 21 8899 0011</li>
+                        <li class="flex items-center"><i class="fa-solid fa-envelope mr-3 text-brand-500"></i> info@kalimayasurya.co.id</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-brand-800 pt-8 text-center text-sm text-brand-100">
+                &copy; 2024 PT Kalimaya Surya Alam. Hak Cipta Dilindungi.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Modal Konfirmasi Checkout -->
+    <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center transform transition-all shadow-2xl">
+            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Pesanan Berhasil!</h3>
+            <p class="text-gray-600 mb-6">Terima kasih telah berbelanja di PT Kalimaya Surya Alam. Tim kami akan segera memproses pesanan Anda.</p>
+            <button onclick="closeModal()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-lg transition">
+                Kembali ke Beranda
+            </button>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIKA APLIKASI -->
+    <script>
+        // Data Produk
+        const products = [
+            { id: 1, name: "Kopi Arabika Organik", price: 85000, category: "Kopi & Teh", image: "https://images.unsplash.com/photo-1559525839-b184a4d698c7?auto=format&fit=crop&w=500&q=80", desc: "Biji kopi Arabika pilihan dari dataran tinggi, diproses secara organik dengan aroma khas." },
+            { id: 2, name: "Madu Hutan Liar", price: 150000, category: "Kesehatan", image: "https://images.unsplash.com/photo-1587049352847-4d4b1ed74dd4?auto=format&fit=crop&w=500&q=80", desc: "Madu murni 100% dari lebah hutan liar nusantara. Kaya akan antioksidan." },
+            { id: 3, name: "Minyak Kelapa Murni (VCO)", price: 65000, category: "Kesehatan", image: "https://images.unsplash.com/photo-1620603126781-67856b3e3465?auto=format&fit=crop&w=500&q=80", desc: "Virgin Coconut Oil hasil ekstraksi dingin tanpa pemanasan, menjaga nutrisi alami." },
+            { id: 4, name: "Gula Aren Cair Premium", price: 45000, category: "Bahan Pokok", image: "https://images.unsplash.com/photo-1625482393356-9e66ff737ab5?auto=format&fit=crop&w=500&q=80", desc: "Pemanis alami rendah indeks glikemik, cocok untuk campuran minuman dan makanan." },
+            { id: 5, name: "Teh Hijau Pegunungan", price: 55000, category: "Kopi & Teh", image: "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?auto=format&fit=crop&w=500&q=80", desc: "Pucuk daun teh hijau premium yang kaya akan katekin, dipetik saat embun pagi." },
+            { id: 6, name: "Rempah Kering Pilihan", price: 40000, category: "Bumbu", image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=500&q=80", desc: "Campuran rempah-rempah berkualitas ekspor untuk menyempurnakan cita rasa masakan." }
+        ];
+
+        // State Keranjang
+        let cart = [];
+
+        // Format Rupiah
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        };
+
+        // Navigasi SPA
+        function navigate(sectionId) {
+            // Sembunyikan semua section
+            document.querySelectorAll('.page-section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            // Tampilkan yang dipilih
+            document.getElementById(sectionId).classList.add('active');
+            window.scrollTo(0, 0);
+
+            // Jika masuk ke keranjang, render ulang
+            if(sectionId === 'cart') {
+                renderCart();
+            }
+
+            // Tutup mobile menu jika terbuka
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        // Render Produk ke Grid
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 border border-gray-100 flex flex-col';
+                card.innerHTML = `
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover transform hover:scale-105 transition duration-500">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur text-brand-800 text-xs font-bold px-3 py-1 rounded-full shadow">
+                            ${product.category}
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">${product.name}</h3>
+                        <p class="text-brand-600 font-bold text-lg mb-3">${formatRupiah(product.price)}</p>
+                        <p class="text-gray-500 text-sm mb-6 flex-grow line-clamp-2">${product.desc}</p>
+                        <button onclick="addToCart(${product.id})" class="w-full bg-white border-2 border-brand-500 text-brand-600 hover:bg-brand-500 hover:text-white py-2.5 rounded-lg font-semibold transition duration-300 flex items-center justify-center">
+                            <i class="fa-solid fa-cart-plus mr-2"></i> Tambah ke Keranjang
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Tambah ke Keranjang
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+
+            updateCartBadge();
+            showToast(`${product.name} ditambahkan!`);
+        }
+
+        // Update Badge Keranjang (Desktop & Mobile)
+        function updateCartBadge() {
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-badge').textContent = totalItems;
+            document.getElementById('cart-badge-mobile').textContent = totalItems;
+        }
+
+        // Render Keranjang Belanja
+        function renderCart() {
+            const container = document.getElementById('cart-container');
+            const summary = document.getElementById('cart-summary');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                        <i class="fa-solid fa-basket-shopping text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-medium text-gray-600 mb-4">Keranjang belanja Anda masih kosong.</h3>
+                        <button onclick="navigate('products')" class="bg-brand-600 text-white px-6 py-2 rounded-lg hover:bg-brand-700 transition">Lihat Produk</button>
+                    </div>
+                `;
+                summary.classList.add('hidden');
+                return;
+            }
+
+            let cartHTML = '<div class="space-y-4">';
+            let totalPrice = 0;
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.qty;
+                totalPrice += itemTotal;
+                cartHTML += `
+                    <div class="flex flex-col sm:flex-row items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100 gap-4">
+                        <div class="flex items-center w-full sm:w-1/2">
+                            <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg mr-4">
+                            <div>
+                                <h4 class="font-bold text-gray-800">${item.name}</h4>
+                                <p class="text-brand-600 font-medium">${formatRupiah(item.price)}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between w-full sm:w-auto gap-6">
+                            <div class="flex items-center border rounded-lg bg-gray-50">
+                                <button onclick="changeQty(${item.id}, -1)" class="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded-l-lg">-</button>
+                                <span class="px-4 font-semibold">${item.qty}</span>
+                                <button onclick="changeQty(${item.id}, 1)" class="px-3 py-1 text-gray-600 hover:bg-gray-200 rounded-r-lg">+</button>
+                            </div>
+                            <div class="font-bold text-gray-800 w-32 text-right">
+                                ${formatRupiah(itemTotal)}
+                            </div>
+                            <button onclick="removeItem(${item.id})" class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            cartHTML += '</div>';
+
+            container.innerHTML = cartHTML;
+            summary.classList.remove('hidden');
+            document.getElementById('cart-total-price').textContent = formatRupiah(totalPrice);
+        }
+
+        // Ubah Kuantitas
+        function changeQty(productId, change) {
+            const item = cart.find(i => i.id === productId);
+            if (item) {
+                item.qty += change;
+                if (item.qty <= 0) {
+                    removeItem(productId);
+                } else {
+                    renderCart();
+                    updateCartBadge();
+                }
+            }
+        }
+
+        // Hapus Item
+        function removeItem(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            renderCart();
+            updateCartBadge();
+            showToast("Item dihapus dari keranjang.");
+        }
+
+        // Checkout Modal
+        function processCheckout() {
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            cart = []; // Kosongkan keranjang
+            updateCartBadge();
+            renderCart();
+        }
+
+        function closeModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+            navigate('home');
+        }
+
+        // Custom Toast Notification (Pengganti Alert)
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast flex items-center shadow-lg';
+            toast.innerHTML = `<i class="fa-solid fa-check-circle mr-3"></i> ${message}`;
+            
+            container.appendChild(toast);
+            
+            // Animasi masuk
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+
+            // Hapus setelah 3 detik
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Inisialisasi
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            
+            // Mobile Menu Toggle
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+        });
+
+    </script>
+</body>
+</html>
